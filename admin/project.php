@@ -2,18 +2,18 @@
 require_once "../koneksi.php";
 session_start();
 
-$services = mysqli_query($conn, "SELECT * FROM service");
-$rows = mysqli_fetch_all($services, MYSQLI_ASSOC);
+$project = mysqli_query($conn, "SELECT * FROM project");
+$rows = mysqli_fetch_all($project, MYSQLI_ASSOC);
 
-if (isset($_GET['idDel'])) {
-    $idDel = base64_decode($_GET['idDel']);
+if (isset($_GET['delete'])) {
+    $idDel = base64_decode($_GET['delete']);
     if (!is_numeric($idDel)) {
         die("ID tidak valid.");
     }
 
-    $q_delete = mysqli_query($conn, "DELETE FROM service WHERE id = $idDel");
+    $q_delete = mysqli_query($conn, "DELETE FROM project WHERE id = $idDel");
 
-    header("Location: service.php");
+    header("Location: project.php");
     exit();
 }
 ?>
@@ -78,31 +78,36 @@ if (isset($_GET['idDel'])) {
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Service</h5>
+                            <h5 class="card-title">Project</h5>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="card-body">
-                                    <a href="../admin/editservice.php" class="btn btn-primary mb-3">Create</a>
+                                    <a href="../admin/tambahproject.php" class="btn btn-primary mb-3">Create</a>
                                     <div class="card table-container">
-                                        <table class="table table-bordered text-center">
-
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Nama Service</th>
-                                                <th>Icon</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                            <?php $no = 1;
-                                            foreach ($rows as $row) {
-                                            ?>
+                                        <table class="table table-bordered text-center" id="myTable">
+                                            <thead>
                                                 <tr>
-                                                    <td><?= $no++ ?></td>
-                                                    <td><?= $row['nama_service'] ?></td>
-                                                    <td><?= $row['icon'] ?></td>
-                                                    <td><a href="editservice.php?idEdt=<?php echo base64_encode($row['id']) ?>" class="btn btn-success btn-sm">Edit</a><br>
-                                                        <a href="service.php?idDel=<?php echo base64_encode($row['id']); ?>" class="btn btn-danger" onclick="return confirm('yakin mau menghapus profile?');">Delete</a>
-                                                    </td>
+                                                    <th>No</th>
+                                                    <th>Nama</th>
+                                                    <th>Kategori</th>
+                                                    <th>Foto</th>
+                                                    <th>Actions</th>
                                                 </tr>
-                                            <?php } ?>
+                                            </thead>
+                                            <tbody>
+                                                <?php $no = 1;
+                                                foreach ($rows as $row) {
+                                                ?>
+                                                    <tr>
+                                                        <td><?= $no++ ?></td>
+                                                        <td><?= $row['nama'] ?></td>
+                                                        <td><?= $row['kategori'] ?></td>
+                                                        <td><img src="<?php echo "../assets/uploads/" . $row['foto'] ?>" width="50" height="50"></td>
+                                                        <td><a href="tambahproject.php?edit=<?php echo base64_encode($row['id']) ?>" class="btn btn-success btn-sm">Edit</a><br>
+                                                            <a href="project.php?delete=<?php echo base64_encode($row['id']); ?>" class="btn btn-danger" onclick="return confirm('yakin mau menghapus profile?');">Delete</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -130,6 +135,11 @@ if (isset($_GET['idDel'])) {
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
+    <script
+        src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+        crossorigin="anonymous"></script>
+
     <!-- Vendor JS Files -->
     <script src="../assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -142,7 +152,49 @@ if (isset($_GET['idDel'])) {
 
     <!-- Template Main JS File -->
     <script src="../assets/js/main.js"></script>
-
+    <script src="https://cdn.datatables.net/v/bs5/dt-2.2.2/datatables.min.js" integrity="sha384-k90VzuFAoyBG5No1d5yn30abqlaxr9+LfAPp6pjrd7U3T77blpvmsS8GqS70xcnH" crossorigin="anonymous"></script>
+    <script>
+        let dataTable = new DataTable("#myTable");
+    </script>
 </body>
+<!-- if (mysqli_num_rows($querySetting) > 0) {
+        $fillQupdate = '';
+        if ($logo['error'] == 0) {
+            $fileName = uniqid() . "_" . basename($logo['name']);
+            $filepath = "../assets/uploads/" . $fileName;
+            if (move_uploaded_file($logo['tmp_name'], $filepath)) {
+                $rowLogo = $rowEdt['logo'];
+                if ($rowLogo && file_exists("../assets/uploads/" . $rowLogo)) {
+                    unlink("../assets/uploads/" . $rowLogo);
+                }
+            } else {
+                echo "GAGAL UPLOAD";
+            }
+        }
+        $fillQupdate = "logo='$fileName'";
+        $update = mysqli_query($conn, "UPDATE setting SET nama_website='$nama_website', alamat_website='$alamat_website', email='$email', tlpn='$tlpn', alamat='$alamat', $fillQupdate WHERE id = 1");
+        header("location:setting.php?ubah=berhasil");
+    } else {
+        if ($logo['error'] == 0) {
+            $fileName = uniqid() . "_" . basename($logo['name']);
+            $filepath = "../assets/uploads/" . $fileName;
+            move_uploaded_file($logo['tmp_name'], $filepath);
+
+            $insert = mysqli_query($conn, "INSERT INTO setting (nama_website, alamat_website, email, tlpn, alamat, logo) VALUES('$nama_website', '$alamat_website', '$email', '$tlpn', '$alamat', '$fileName')");
+            header("location:setting.php?tambah=berhasil");
+        }
+    }
+}
+if (isset($_GET['idDel'])) {
+    $id = $_GET['idDel'];
+    if ($rowEdt['logo']) {
+        unlink("../assets/uploads/" . $rowEdt['logo']);
+        $delete = mysqli_query($conn, "DELETE FROM setting WHERE id = $id");
+        $alterAI = mysqli_query($conn, "ALTER TABLE setting AUTO_INCREMENT = 1");
+        if ($delete & $alterAI) {
+            header("location: setting.php");
+        }
+    }
+} -->
 
 </html>

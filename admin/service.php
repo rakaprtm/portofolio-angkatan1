@@ -87,8 +87,8 @@ if (isset($_GET['idDel'])) {
 
                                             <tr>
                                                 <th>No</th>
-                                                <th>Nama Service</th>
-                                                <th>Icon</th>
+                                                <th>Nama</th>
+                                                <th>Kategori</th>
                                                 <th>Actions</th>
                                             </tr>
                                             <?php $no = 1;

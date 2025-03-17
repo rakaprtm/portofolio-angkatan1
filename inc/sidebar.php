@@ -221,6 +221,12 @@
                 <i class="bi bi-person"></i>
                 <span>Setting</span>
             </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="blog.php?sidebar=setting">
+                <i class="bi bi-person"></i>
+                <span>Blog</span>
+            </a>
         </li><!-- End Profile Page Nav -->
         
 
