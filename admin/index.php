@@ -1,7 +1,7 @@
 <?php
 session_start();
 session_regenerate_id();
-require '../koneksi.php';
+require 'koneksi.php';
 
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
